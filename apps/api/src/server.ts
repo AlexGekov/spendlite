@@ -1,26 +1,7 @@
 import 'dotenv/config';
-import express from 'express';
 import { Pool } from 'pg';
+import { createApp } from './app.js';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 2000,
-});
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 2000 });
 
-const app = express();
-app.use(express.json());
-
-app.get('/health/live', (_req, res) => {
-  res.json({ ok: true });
-});
-
-app.get('/health/ready', async (_req, res) => {
-  try {
-    await pool.query('SELECT 1');
-    res.json({ ok: true });
-  } catch {
-    res.status(503).json({ ok: false });
-  }
-});
-
-app.listen(3000, () => console.log('API on http://localhost:3000'));
+createApp(pool).listen(3000, () => console.log('API on http://localhost:3000'));
